@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Buscador de Películas</title>
+  <style>
+    body { font-family: sans-serif; background: #141414; color: white; padding: 20px; }
+    .search-box { margin-bottom: 20px; }
+    input { padding: 10px; width: 250px; border-radius: 4px; border: none; }
+    button { padding: 10px 15px; border-radius: 4px; border: none; background: #e50914; color: white; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+    .card { background: #222; padding: 10px; border-radius: 8px; text-align: center; }
+    .card img { width: 100%; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <div class="search-box">
+    <input type="text" id="query" placeholder="Escribe una película...">
+    <button onclick="buscarPeliculas()">Buscar</button>
+  </div>
+
+  <div id="resultados" class="grid"></div>
+
+  <script>
+    async function buscarPeliculas() {
+      const query = document.getElementById('query').value;
+      const contenedor = document.getElementById('resultados');
+      if (!query) return;
+
+      contenedor.innerHTML = 'Cargando...';
+
+      try {
+        const res = await fetch(https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=trilogy);
+        const data = await res.json();
+
+        if (data.Response === "True") {
+          contenedor.innerHTML = data.Search.map(peli => `
+            <div class="card">
+              <img src="${peli.Poster !== 'N/A' ? peli.Poster : 'https://via.placeholder.com/150'}" alt="${peli.Title}">
+              <h4>${peli.Title}</h4>
+              <p>${peli.Year}</p>
+            </div>
+          `).join('');
+        } else {
+          contenedor.innerHTML = '<p>No se encontraron resultados.</p>';
+        }
+      } catch (err) {
+        contenedor.innerHTML = '<p>Error al conectar con el servidor.</p>';
+      }
+    }
+  </script>
+</body>
+</html>
